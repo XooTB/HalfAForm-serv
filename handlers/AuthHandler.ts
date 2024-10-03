@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { v4 as uuid } from "uuid";
 
 export default class AuthHandler {
   private prisma: PrismaClient;
@@ -22,6 +23,7 @@ export default class AuthHandler {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await this.prisma.user.create({
       data: {
+        id: uuid(),
         email,
         name,
         password: hashedPassword,
@@ -56,7 +58,7 @@ export default class AuthHandler {
     }
   }
 
-  private generateToken(userId: number): string {
+  private generateToken(userId: string): string {
     return jwt.sign({ userId }, this.jwtSecret, { expiresIn: "1d" });
   }
 }
