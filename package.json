@@ -5,7 +5,7 @@
   "scripts": {
     "start": "bun index.ts",
     "dev": "bun index.ts --watch",
-    "postinstall": "prisma generate"
+    "postinstall": "bunx prisma generate"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
