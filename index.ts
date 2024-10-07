@@ -24,6 +24,7 @@ const authController = new AuthController(authHandler);
 app.get("/", (req, res) => {
   res.send("Server is running");
 });
+
 app.post("/register", authController.register.bind(authController));
 
 // Login route
