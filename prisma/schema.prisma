@@ -10,6 +10,17 @@ model User {
   password String
 }
 
+model Template {
+  id      String   @id @unique @default(uuid())
+  name    String
+  description String
+  blocks      Json
+  authorId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  version     Int     @default(1)
+}
+
 generator client {
   provider = "prisma-client-js"
 }

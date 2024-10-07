@@ -49,9 +49,9 @@ export default class AuthHandler {
     return { user: { id: user.id, email: user.email, name: user.name }, token };
   }
 
-  verifyToken(token: string): number {
+  verifyToken(token: string): string {
     try {
-      const decoded = jwt.verify(token, this.jwtSecret) as { userId: number };
+      const decoded = jwt.verify(token, this.jwtSecret) as { userId: string };
       return decoded.userId;
     } catch (error) {
       throw new Error("Invalid token");
