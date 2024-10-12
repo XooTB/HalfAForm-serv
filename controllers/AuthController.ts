@@ -33,19 +33,6 @@ export default class AuthController {
     }
   }
 
-  async protected(req: Request, res: Response) {
-    try {
-      const token = req.headers.authorization?.split(" ")[1];
-      if (!token) {
-        throw new Error("No token provided");
-      }
-      const userId = this.authHandler.verifyToken(token);
-      res.json({ message: "Access granted", userId });
-    } catch (error: any) {
-      res.status(401).json({ error: error.message });
-    }
-  }
-
   authMiddleware(req: Request, res: Response, next: NextFunction) {
     try {
       const token = req.headers.authorization?.split(" ")[1];

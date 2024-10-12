@@ -21,6 +21,7 @@ export default class AuthHandler {
     const existingUser = await this.prisma.user.findUnique({
       where: { email },
     });
+
     if (existingUser) {
       throw new Error("User already exists");
     }
@@ -33,6 +34,7 @@ export default class AuthHandler {
         name,
         password: hashedPassword,
         role,
+        status: "active",
       },
     });
 
@@ -43,6 +45,7 @@ export default class AuthHandler {
         email: user.email,
         name: user.name,
         role: user.role,
+        status: user.status,
       },
       token,
     };
@@ -52,6 +55,10 @@ export default class AuthHandler {
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user) {
       throw new Error("Invalid credentials");
+    }
+
+    if (user.status !== "active") {
+      throw new Error("User is not active");
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -66,6 +73,7 @@ export default class AuthHandler {
         email: user.email,
         name: user.name,
         role: user.role,
+        status: user.status,
       },
       token,
     };
