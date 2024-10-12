@@ -122,4 +122,9 @@ export default class TemplateHandler {
 
     return templates;
   }
+
+  async getTemplates() {
+    const templates = await this.prisma.template.findMany();
+    return templates;
+  }
 }

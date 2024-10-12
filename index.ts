@@ -60,6 +60,8 @@ app.get(
   templateController.getTemplate.bind(templateController)
 );
 
+app.get("/templates", templateController.getTemplates.bind(templateController));
+
 app.delete(
   "/templates/:id",
   authController.authMiddleware.bind(authController),

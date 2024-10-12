@@ -39,10 +39,14 @@ export default class TemplateController {
         TemplateBlockSchema.parse(block);
       }
 
-      const userId = (req as any).user.id;
+      const { id: userId, role } = (req as any).user;
 
       if (!userId) {
         throw new AppError(401, "User is not authenticated");
+      }
+
+      if (role !== "admin" && role !== "regular") {
+        throw new AppError(401, "User is not authorized");
       }
 
       const template = await this.templateHandler.createTemplate(
@@ -66,7 +70,7 @@ export default class TemplateController {
     try {
       // Extract template ID from request parameters
       const { id } = req.params;
-      const userId = (req as any).user.id;
+      const { id: userId, role } = (req as any).user;
 
       // Extract template data from request body
       const { template } = req.body;
@@ -76,8 +80,8 @@ export default class TemplateController {
       const record = await this.templateHandler.getTemplate(id);
 
       // Ensure the user is the author of the template
-      if (record.authorId !== userId) {
-        throw new AppError(401, "User is not the author of the template");
+      if (record.authorId !== userId && role !== "admin") {
+        throw new AppError(401, "User is not authorized for this action");
       }
 
       // Update the template
@@ -102,14 +106,14 @@ export default class TemplateController {
     try {
       // Extract template ID from request parameters
       const { id } = req.params;
-      const userId = (req as any).user.id;
+      const { id: userId, role } = (req as any).user;
 
       // Fetch the existing template record
       const record = await this.templateHandler.getTemplate(id);
 
       // Ensure the user is the author of the template
-      if (record.authorId !== userId) {
-        throw new AppError(401, "User is not the author of the template");
+      if (record.authorId !== userId && role !== "admin") {
+        throw new AppError(401, "User is not authorized for this action");
       }
 
       // Delete the template
@@ -143,13 +147,27 @@ export default class TemplateController {
 
   async getTemplatesByUser(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user.id;
+      const { id: userId, role } = (req as any).user;
 
       if (!userId) {
         throw new AppError(401, "User is not authenticated");
       }
 
       const templates = await this.templateHandler.getTemplatesByUser(userId);
+
+      res.json(templates);
+    } catch (error: any | ZodError) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ error: fromError(error).toString() });
+      } else {
+        res.status(500).json({ error: error.message });
+      }
+    }
+  }
+
+  async getTemplates(req: Request, res: Response): Promise<void> {
+    try {
+      const templates = await this.templateHandler.getTemplates();
 
       res.json(templates);
     } catch (error: any | ZodError) {
