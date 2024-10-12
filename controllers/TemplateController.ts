@@ -29,26 +29,33 @@ export default class TemplateController {
 
   async createTemplate(req: Request, res: Response): Promise<void> {
     try {
+      // Extract template data from request body
       const { name, description, blocks } = req.body;
 
+      // Validate required fields
       if (!name || !description || !blocks) {
         throw new AppError(400, "Missing required fields");
       }
 
+      // Validate blocks
       for (let block of blocks) {
         TemplateBlockSchema.parse(block);
       }
 
+      // Extract user ID and role from request
       const { id: userId, role } = (req as any).user;
 
+      // Validate user authentication
       if (!userId) {
         throw new AppError(401, "User is not authenticated");
       }
 
+      // Validate user role
       if (role !== "admin" && role !== "regular") {
         throw new AppError(401, "User is not authorized");
       }
 
+      // Create the template
       const template = await this.templateHandler.createTemplate(
         name,
         description,
@@ -56,8 +63,10 @@ export default class TemplateController {
         userId
       );
 
+      // Send the created template as a response
       res.status(201).json(template);
     } catch (error: any | ZodError) {
+      // Handle validation errors
       if (error instanceof ZodError) {
         res.status(400).json({ error: fromError(error).toString() });
       } else {
@@ -79,7 +88,7 @@ export default class TemplateController {
       // Fetch the existing template record
       const record = await this.templateHandler.getTemplate(id);
 
-      // Ensure the user is the author of the template
+      // Ensure the user is either the author of the template or an admin
       if (record.authorId !== userId && role !== "admin") {
         throw new AppError(401, "User is not authorized for this action");
       }
@@ -111,7 +120,7 @@ export default class TemplateController {
       // Fetch the existing template record
       const record = await this.templateHandler.getTemplate(id);
 
-      // Ensure the user is the author of the template
+      // Ensure the user is either the author of the template or an admin
       if (record.authorId !== userId && role !== "admin") {
         throw new AppError(401, "User is not authorized for this action");
       }
