@@ -12,7 +12,12 @@ export default class AuthHandler {
     this.jwtSecret = jwtSecret;
   }
 
-  async register(email: string, name: string, password: string) {
+  async register(
+    email: string,
+    name: string,
+    password: string,
+    role: string = "regular"
+  ) {
     const existingUser = await this.prisma.user.findUnique({
       where: { email },
     });
@@ -27,6 +32,7 @@ export default class AuthHandler {
         email,
         name,
         password: hashedPassword,
+        role,
       },
     });
 

@@ -10,8 +10,13 @@ export default class AuthController {
 
   async register(req: Request, res: Response) {
     try {
-      const { email, name, password } = req.body;
-      const result = await this.authHandler.register(email, name, password);
+      const { email, name, password, role } = req.body;
+      const result = await this.authHandler.register(
+        email,
+        name,
+        password,
+        role
+      );
       res.status(201).json(result);
     } catch (error: any) {
       res.status(400).json({ error: error.message });
