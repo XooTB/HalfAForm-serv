@@ -36,8 +36,16 @@ export default class AuthHandler {
       },
     });
 
-    const token = this.generateToken(user.id);
-    return { user: { id: user.id, email: user.email, name: user.name }, token };
+    const token = this.generateToken(user.id, user.role);
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
+      token,
+    };
   }
 
   async login(email: string, password: string) {
@@ -51,20 +59,31 @@ export default class AuthHandler {
       throw new Error("Invalid credentials");
     }
 
-    const token = this.generateToken(user.id);
-    return { user: { id: user.id, email: user.email, name: user.name }, token };
+    const token = this.generateToken(user.id, user.role);
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
+      token,
+    };
   }
 
-  verifyToken(token: string): string {
+  verifyToken(token: string): { userId: string; userRole: string } {
     try {
-      const decoded = jwt.verify(token, this.jwtSecret) as { userId: string };
-      return decoded.userId;
+      const decoded = jwt.verify(token, this.jwtSecret) as {
+        userId: string;
+        userRole: string;
+      };
+      return decoded;
     } catch (error) {
       throw new Error("Invalid token");
     }
   }
 
-  private generateToken(userId: string): string {
-    return jwt.sign({ userId }, this.jwtSecret, { expiresIn: "1d" });
+  private generateToken(userId: string, userRole: string): string {
+    return jwt.sign({ userId, userRole }, this.jwtSecret, { expiresIn: "1d" });
   }
 }

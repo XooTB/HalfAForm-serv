@@ -56,7 +56,7 @@ export default class AuthController {
 
       const userId = this.authHandler.verifyToken(token);
 
-      const user = { id: userId };
+      const user = { id: userId.userId, role: userId.userRole };
 
       (req as any).user = user;
 
