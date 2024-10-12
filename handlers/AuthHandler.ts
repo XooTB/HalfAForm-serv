@@ -36,7 +36,7 @@ export default class AuthHandler {
       },
     });
 
-    const token = this.generateToken(user.id, user.role);
+    const token = this.generateToken(user.id, user.role, user.status);
     return {
       user: {
         id: user.id,
@@ -59,7 +59,7 @@ export default class AuthHandler {
       throw new Error("Invalid credentials");
     }
 
-    const token = this.generateToken(user.id, user.role);
+    const token = this.generateToken(user.id, user.role, user.status);
     return {
       user: {
         id: user.id,
@@ -71,11 +71,16 @@ export default class AuthHandler {
     };
   }
 
-  verifyToken(token: string): { userId: string; userRole: string } {
+  verifyToken(token: string): {
+    userId: string;
+    userRole: string;
+    userStatus: string;
+  } {
     try {
       const decoded = jwt.verify(token, this.jwtSecret) as {
         userId: string;
         userRole: string;
+        userStatus: string;
       };
       return decoded;
     } catch (error) {
@@ -83,7 +88,13 @@ export default class AuthHandler {
     }
   }
 
-  private generateToken(userId: string, userRole: string): string {
-    return jwt.sign({ userId, userRole }, this.jwtSecret, { expiresIn: "1d" });
+  private generateToken(
+    userId: string,
+    userRole: string,
+    userStatus: string
+  ): string {
+    return jwt.sign({ userId, userRole, userStatus }, this.jwtSecret, {
+      expiresIn: "1d",
+    });
   }
 }

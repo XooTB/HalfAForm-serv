@@ -54,9 +54,13 @@ export default class AuthController {
         throw new Error("No token provided");
       }
 
-      const userId = this.authHandler.verifyToken(token);
+      const userData = this.authHandler.verifyToken(token);
 
-      const user = { id: userId.userId, role: userId.userRole };
+      const user = {
+        id: userData.userId,
+        role: userData.userRole,
+        status: userData.userStatus,
+      };
 
       (req as any).user = user;
 
