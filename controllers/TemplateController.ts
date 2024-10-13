@@ -17,7 +17,7 @@ export default class TemplateController {
   async createTemplate(req: Request, res: Response): Promise<void> {
     try {
       // Extract template data from request body
-      const { name, description, blocks } = req.body;
+      const { name, description, blocks, status: templateStatus } = req.body;
 
       // Validate required fields
       if (!name || !description || !blocks) {
@@ -51,7 +51,8 @@ export default class TemplateController {
         name,
         description,
         blocks as TemplateBlock[],
-        userId
+        userId,
+        templateStatus
       );
 
       // Send the created template as a response

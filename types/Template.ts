@@ -24,6 +24,7 @@ const TemplateSchema = z.object({
 interface Template {
   id: string;
   name: string;
+  status: "draft" | "published" | "restricted";
   description: string;
   blocks: TemplateBlock[];
   authorId: string;

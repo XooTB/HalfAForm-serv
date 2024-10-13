@@ -13,13 +13,15 @@ export default class TemplateHandler {
     name: string,
     description: string,
     blocks: TemplateBlock[],
-    userId: string
+    userId: string,
+    status: "draft" | "published" | "restricted" = "draft"
   ) {
     // Create a new template object
     const data = {
       id: uuid(),
       name,
       description,
+      status,
       blocks: JSON.stringify(blocks), // Convert blocks array to JSON string for storage
       authorId: userId,
       version: 1,
