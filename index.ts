@@ -5,6 +5,8 @@ import { PrismaClient } from "@prisma/client";
 import AuthController from "./controllers/AuthController";
 import TemplateController from "./controllers/TemplateController";
 import AuthHandler from "./handlers/AuthHandler";
+import UserHandler from "./handlers/UserHandler";
+import UserController from "./controllers/UserController";
 
 // Initialize the Express Application, Server and Prisma Client
 const app = express();
@@ -26,6 +28,8 @@ app.use(express.json());
 const authHandler = new AuthHandler(prisma, JWT_SECRET);
 const authController = new AuthController(authHandler);
 const templateController = new TemplateController(prisma);
+const userHandler = new UserHandler(prisma);
+const userController = new UserController(userHandler);
 
 // Register route
 app.get("/", (req, res) => {
@@ -66,6 +70,27 @@ app.delete(
   "/templates/:id",
   authController.authMiddleware.bind(authController),
   templateController.deleteTemplate.bind(templateController)
+);
+
+// User Management Routes
+app.get("/users/:id", userController.getUser.bind(userController));
+
+app.get(
+  "/users",
+  authController.authMiddleware.bind(authController),
+  userController.getAllUsers.bind(userController)
+);
+
+app.put(
+  "/users/:id",
+  authController.authMiddleware.bind(authController),
+  userController.updateUser.bind(userController)
+);
+
+app.delete(
+  "/users/:id",
+  authController.authMiddleware.bind(authController),
+  userController.deleteUser.bind(userController)
 );
 
 // Start the Server and listen to incoming requests
