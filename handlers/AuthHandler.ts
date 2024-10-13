@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { v4 as uuid } from "uuid";
+import { AppError } from "../utils/AppError";
 
 export default class AuthHandler {
   private prisma: PrismaClient;
@@ -79,20 +80,45 @@ export default class AuthHandler {
     };
   }
 
-  verifyToken(token: string): {
+  async verifyToken(token: string): Promise<{
     userId: string;
     userRole: string;
     userStatus: string;
-  } {
+  }> {
     try {
       const decoded = jwt.verify(token, this.jwtSecret) as {
         userId: string;
         userRole: string;
         userStatus: string;
       };
-      return decoded;
-    } catch (error) {
-      throw new Error("Invalid token");
+
+      // Fetch the user information from the database
+      const user = await this.prisma.user.findUnique({
+        where: { id: decoded.userId },
+      });
+
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      // Cross-check the user information
+      if (
+        user.role !== decoded.userRole ||
+        user.status !== decoded.userStatus
+      ) {
+        throw new AppError(
+          403,
+          "Token information mismatch, Please login again"
+        );
+      }
+
+      return {
+        userId: user.id,
+        userRole: user.role,
+        userStatus: user.status,
+      };
+    } catch (error: any) {
+      throw new AppError(403, error.message);
     }
   }
 

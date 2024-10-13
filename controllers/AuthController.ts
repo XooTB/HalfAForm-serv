@@ -33,7 +33,7 @@ export default class AuthController {
     }
   }
 
-  authMiddleware(req: Request, res: Response, next: NextFunction) {
+  async authMiddleware(req: Request, res: Response, next: NextFunction) {
     try {
       const token = req.headers.authorization?.split(" ")[1];
 
@@ -41,7 +41,7 @@ export default class AuthController {
         throw new Error("No token provided");
       }
 
-      const userData = this.authHandler.verifyToken(token);
+      const userData = await this.authHandler.verifyToken(token);
 
       const user = {
         id: userData.userId,
@@ -53,7 +53,7 @@ export default class AuthController {
 
       next();
     } catch (error: any) {
-      res.status(401).json({ error: error.message });
+      res.status(error.statusCode).json({ error: error.message });
     }
   }
 }
