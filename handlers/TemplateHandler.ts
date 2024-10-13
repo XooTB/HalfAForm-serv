@@ -9,14 +9,6 @@ export default class TemplateHandler {
     this.prisma = prisma;
   }
 
-  /**
-   * Creates a new template in the database.
-   * @param name - The name of the template.
-   * @param description - A brief description of the template.
-   * @param blocks - An array of TemplateBlock objects representing the structure of the template.
-   * @param userId - The ID of the user creating the template.
-   * @returns The newly created template object.
-   */
   async createTemplate(
     name: string,
     description: string,
@@ -41,12 +33,6 @@ export default class TemplateHandler {
     return template;
   }
 
-  /**
-   * Retrieves a template by its ID.
-   * @param id - The ID of the template to retrieve.
-   * @returns The template object if found.
-   * @throws Error if the template is not found.
-   */
   async getTemplate(id: string) {
     const template = await this.prisma.template.findUnique({
       where: { id },
@@ -59,14 +45,6 @@ export default class TemplateHandler {
     return template;
   }
 
-  /**
-   * Updates an existing template.
-   * @param id - The ID of the template to update.
-   * @param name - The new name for the template.
-   * @param description - The new description for the template.
-   * @param blocks - The new array of TemplateBlock objects.
-   * @returns The updated template object.
-   */
   async updateTemplate(
     id: string,
     name: string,
@@ -88,21 +66,12 @@ export default class TemplateHandler {
     return template;
   }
 
-  /**
-   * Deletes a template by its ID.
-   * @param id - The ID of the template to delete.
-   */
   async deleteTemplate(id: string) {
     await this.prisma.template.delete({
       where: { id },
     });
   }
 
-  /**
-   * Retrieves all templates created by a specific user.
-   * @param userId - The ID of the user whose templates to retrieve.
-   * @returns An array of template objects.
-   */
   async getTemplatesByUser(userId: string) {
     const templates = await this.prisma.template.findMany({
       where: { authorId: userId },
@@ -110,11 +79,6 @@ export default class TemplateHandler {
     return templates;
   }
 
-  /**
-   * Retrieves all templates created by a specific author.
-   * @param authorId - The ID of the author whose templates to retrieve.
-   * @returns An array of template objects.
-   */
   async getTemplatesByAuthor(authorId: string) {
     const templates = await this.prisma.template.findMany({
       where: { authorId },
