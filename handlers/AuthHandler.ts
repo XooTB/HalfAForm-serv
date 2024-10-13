@@ -88,8 +88,6 @@ export default class AuthHandler {
     try {
       const decoded = jwt.verify(token, this.jwtSecret) as {
         userId: string;
-        userRole: string;
-        userStatus: string;
       };
 
       // Fetch the user information from the database
@@ -101,24 +99,13 @@ export default class AuthHandler {
         throw new Error("User not found");
       }
 
-      // Cross-check the user information
-      if (
-        user.role !== decoded.userRole ||
-        user.status !== decoded.userStatus
-      ) {
-        throw new AppError(
-          403,
-          "Token information mismatch, Please login again"
-        );
-      }
-
       return {
         userId: user.id,
         userRole: user.role,
         userStatus: user.status,
       };
     } catch (error: any) {
-      throw new AppError(403, error.message);
+      throw new AppError(401, error.message);
     }
   }
 
