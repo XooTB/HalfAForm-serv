@@ -13,6 +13,7 @@ const TemplateBlockSchema = z.object({
 const TemplateSchema = z.object({
   id: z.string(),
   name: z.string(),
+  image: z.string().optional(),
   description: z.string(),
   blocks: z.array(TemplateBlockSchema),
   authorId: z.string(),
@@ -24,6 +25,7 @@ const TemplateSchema = z.object({
 interface Template {
   id: string;
   name: string;
+  image?: string;
   status: "draft" | "published" | "restricted";
   description: string;
   blocks: TemplateBlock[];

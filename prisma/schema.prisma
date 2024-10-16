@@ -16,6 +16,7 @@ model Template {
   id          String   @id @unique @default(uuid())
   status      String   @default("draft")
   name        String
+  image       String?
   description String
   blocks      Json
   authorId    String

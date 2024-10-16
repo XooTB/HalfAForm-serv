@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import TemplateHandler from "../handlers/TemplateHandler";
 import { PrismaClient } from "@prisma/client";
-import type { TemplateBlock } from "../types/Template";
+import type { Template, TemplateBlock } from "../types/Template";
 import { TemplateBlockSchema, TemplateSchema } from "../types/Template";
 import { ZodError } from "zod";
 import { fromError } from "zod-validation-error";
@@ -17,7 +17,13 @@ export default class TemplateController {
   async createTemplate(req: Request, res: Response): Promise<void> {
     try {
       // Extract template data from request body
-      const { name, description, blocks, status: templateStatus } = req.body;
+      const {
+        name,
+        description,
+        blocks,
+        status: templateStatus,
+        image,
+      } = req.body;
 
       // Validate required fields
       if (!name || !description || !blocks) {
@@ -52,7 +58,8 @@ export default class TemplateController {
         description,
         blocks as TemplateBlock[],
         userId,
-        templateStatus
+        templateStatus,
+        image
       );
 
       // Send the created template as a response
@@ -90,12 +97,12 @@ export default class TemplateController {
       }
 
       // Merge existing template with partial update
-      const updatedTemplate = {
+      const updatedTemplate: Template = {
         ...existingTemplate,
         ...partialTemplate,
         blocks: partialTemplate.blocks
-          ? (JSON.parse(partialTemplate.blocks as string) as TemplateBlock[])
-          : (JSON.parse(existingTemplate.blocks as string) as TemplateBlock[]),
+          ? partialTemplate.blocks
+          : existingTemplate.blocks,
       };
 
       // Validate the merged template
@@ -104,9 +111,7 @@ export default class TemplateController {
       // Update the template
       const data = await this.templateHandler.updateTemplate(
         id,
-        updatedTemplate.name,
-        updatedTemplate.description,
-        updatedTemplate.blocks as TemplateBlock[]
+        updatedTemplate
       );
 
       res.json(data);

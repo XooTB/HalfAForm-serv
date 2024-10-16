@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { v4 as uuid } from "uuid";
-import type { TemplateBlock } from "../types/Template";
+import type { Template, TemplateBlock } from "../types/Template";
 
 export default class TemplateHandler {
   private prisma: PrismaClient;
@@ -14,7 +14,8 @@ export default class TemplateHandler {
     description: string,
     blocks: TemplateBlock[],
     userId: string,
-    status: "draft" | "published" | "restricted" = "draft"
+    status: "draft" | "published" | "restricted" = "draft",
+    image?: string
   ) {
     // Create a new template object
     const data = {
@@ -25,6 +26,7 @@ export default class TemplateHandler {
       blocks: JSON.stringify(blocks), // Convert blocks array to JSON string for storage
       authorId: userId,
       version: 1,
+      image,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -47,17 +49,12 @@ export default class TemplateHandler {
     return template;
   }
 
-  async updateTemplate(
-    id: string,
-    name: string,
-    description: string,
-    blocks: TemplateBlock[]
-  ) {
+  async updateTemplate(id: string, templateData: Template) {
     const data = {
-      name,
-      description,
-      blocks: JSON.stringify(blocks),
-      updatedAt: new Date(), // Update the timestamp
+      ...templateData,
+      blocks: JSON.stringify(templateData.blocks),
+      updatedAt: new Date(),
+      version: templateData.version + 1,
     };
 
     const template = await this.prisma.template.update({
