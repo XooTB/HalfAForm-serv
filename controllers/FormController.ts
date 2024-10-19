@@ -195,4 +195,47 @@ export class FormController {
       }
     }
   }
+
+  // Delete a specific form
+  async deleteForm(req: Request, res: Response) {
+    try {
+      const formId = req.params.formId;
+      const { userId, role } = this.validateUser(req);
+
+      // Fetch the form
+      const form = await this.formHandler.getForm(formId);
+      const template = await this.templateHandler.getTemplate(form.templateId);
+
+      // Check if the user is the owner of the form or the owner of the template or the Admin
+      if (
+        form.userId !== userId &&
+        template.authorId !== userId &&
+        role !== "admin"
+      ) {
+        throw new AppError(
+          401,
+          "The user is not authorized to delete this form"
+        );
+      }
+
+      // Delete the form
+      const deletedForm = await this.formHandler.deleteForm(formId);
+
+      // Return the deleted form
+      res.status(200).json({
+        message: "Form deleted successfully",
+        form: deletedForm,
+      });
+    } catch (error: AppError | ZodError | any) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          message: error.message,
+        });
+      } else {
+        res.status(500).json({
+          message: "An unexpected error occurred",
+        });
+      }
+    }
+  }
 }

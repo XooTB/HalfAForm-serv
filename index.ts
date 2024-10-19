@@ -117,6 +117,12 @@ app.get(
   formController.getForm.bind(formController)
 );
 
+app.delete(
+  "/forms/delete/:formId",
+  authController.authMiddleware.bind(authController),
+  formController.deleteForm.bind(formController)
+);
+
 // Start the Server and listen to incoming requests
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

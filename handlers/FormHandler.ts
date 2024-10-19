@@ -64,4 +64,17 @@ export class FormHandler {
 
     return form;
   }
+
+  // Delete a specific form
+  async deleteForm(formId: string) {
+    const deletedForm = await this.prisma.form.delete({
+      where: { id: formId },
+    });
+
+    if (!deletedForm) {
+      throw new AppError(404, "Form not found");
+    }
+
+    return deletedForm;
+  }
 }
