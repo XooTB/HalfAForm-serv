@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { v4 as uuid } from "uuid";
 import type { Template, TemplateBlock } from "../types/Template";
+import { AppError } from "../utils/AppError";
 
 export default class TemplateHandler {
   private prisma: PrismaClient;
@@ -43,7 +44,7 @@ export default class TemplateHandler {
     });
 
     if (!template) {
-      throw new Error("Template not found");
+      throw new AppError(404, "Template not found");
     }
 
     return template;

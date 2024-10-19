@@ -7,6 +7,9 @@ import TemplateController from "./controllers/TemplateController";
 import AuthHandler from "./handlers/AuthHandler";
 import UserHandler from "./handlers/UserHandler";
 import UserController from "./controllers/UserController";
+import { FormHandler } from "./handlers/FormHandler";
+import { FormController } from "./controllers/FormController";
+import TemplateHandler from "./handlers/TemplateHandler";
 
 // Initialize the Express Application, Server and Prisma Client
 const app = express();
@@ -30,6 +33,8 @@ const authController = new AuthController(authHandler);
 const templateController = new TemplateController(prisma);
 const userHandler = new UserHandler(prisma);
 const userController = new UserController(userHandler);
+const formHandler = new FormHandler(prisma);
+const formController = new FormController(formHandler, prisma);
 
 // Register route
 app.get("/", (req, res) => {
@@ -91,6 +96,13 @@ app.delete(
   "/users/:id",
   authController.authMiddleware.bind(authController),
   userController.deleteUser.bind(userController)
+);
+
+// Form Routes
+app.post(
+  "/forms/new",
+  authController.authMiddleware.bind(authController),
+  formController.createForm.bind(formController)
 );
 
 // Start the Server and listen to incoming requests
