@@ -36,4 +36,32 @@ export class FormHandler {
 
     return newForm;
   }
+
+  // Fetch all the forms for a specific template.
+  async getAllForms(templateId: string) {
+    const forms = await this.prisma.form.findMany({
+      where: {
+        templateId,
+      },
+    });
+
+    if (!forms) {
+      throw new AppError(404, "No forms found for this template");
+    }
+
+    return forms;
+  }
+
+  // Fetch a specific form
+  async getForm(formId: string) {
+    const form = await this.prisma.form.findUnique({
+      where: { id: formId },
+    });
+
+    if (!form) {
+      throw new AppError(404, "Form not found");
+    }
+
+    return form;
+  }
 }

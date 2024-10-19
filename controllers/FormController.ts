@@ -32,7 +32,7 @@ export class FormController {
     ) {
       throw new AppError(401, "The user is not authorized to create a form");
     }
-    return userId;
+    return { userId, role, status };
   }
 
   // Validate form answers
@@ -79,7 +79,7 @@ export class FormController {
   async createForm(req: Request, res: Response) {
     try {
       // Validate the user and get their ID
-      const userId = this.validateUser(req);
+      const { userId } = this.validateUser(req);
 
       // Extract form data from the request body and assign the user ID
       const formData: Form = req.body;
@@ -119,6 +119,76 @@ export class FormController {
         });
       } else {
         // Unexpected errors
+        res.status(500).json({
+          message: "An unexpected error occurred",
+        });
+      }
+    }
+  }
+
+  // Fetch all the Forms.
+  async getAllForms(req: Request, res: Response) {
+    try {
+      // Validate the user and get their ID
+      const { userId, role } = this.validateUser(req);
+
+      // Extract the template ID from the request parameters
+      const templateId = req.params.templateId;
+
+      // Check if the template exists and is published
+      const template = await this.checkTemplate(templateId);
+
+      // Check if the user is the owner of the template or the Admin
+      if (template.authorId !== userId && role !== "admin") {
+        throw new AppError(
+          401,
+          "The user is not authorized to fetch forms for this template"
+        );
+      }
+
+      // Fetch all the forms
+      const forms = await this.formHandler.getAllForms(templateId);
+
+      // Return the forms
+      res.status(200).json(forms);
+    } catch (error: AppError | ZodError | any) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          message: error.message,
+        });
+      } else {
+        res.status(500).json({
+          message: "An unexpected error occurred",
+        });
+      }
+    }
+  }
+
+  // Fetch a specific form
+  async getForm(req: Request, res: Response) {
+    try {
+      const formId = req.params.formId;
+      const { userId, role } = this.validateUser(req);
+
+      // Fetch the form
+      const form = await this.formHandler.getForm(formId);
+
+      // Check if the user is the owner of the form or the Admin
+      if (form.userId !== userId && role !== "admin") {
+        throw new AppError(
+          401,
+          "The user is not authorized to fetch this form"
+        );
+      }
+
+      // If everything is ok, return the form
+      res.status(200).json(form);
+    } catch (error: AppError | ZodError | any) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          message: error.message,
+        });
+      } else {
         res.status(500).json({
           message: "An unexpected error occurred",
         });

@@ -105,6 +105,18 @@ app.post(
   formController.createForm.bind(formController)
 );
 
+app.get(
+  "/forms/:templateId",
+  authController.authMiddleware.bind(authController),
+  formController.getAllForms.bind(formController)
+);
+
+app.get(
+  "/forms/get/:formId",
+  authController.authMiddleware.bind(authController),
+  formController.getForm.bind(formController)
+);
+
 // Start the Server and listen to incoming requests
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
