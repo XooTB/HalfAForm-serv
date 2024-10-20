@@ -54,24 +54,33 @@ export class FormController {
     return template;
   }
 
-  // Ensure template blocks ID match form answers ID
+  // Ensure template blocks ID match form answers ID and required fields are answered
   private matchTemplateBlocks(
     templateBlocks: TemplateBlock[],
     formAnswers: FormAnswers[]
   ) {
-    if (templateBlocks.length !== formAnswers.length) {
-      throw new AppError(400, "The template and form answers do not match");
+    // Check all required template blocks have answers
+    for (const block of templateBlocks) {
+      if (block.required) {
+        const formAnswer = formAnswers.find(
+          (answer) => answer.questionId === block.id
+        );
+        if (!formAnswer) {
+          throw new AppError(
+            400,
+            `Required question "${block.question}" is not answered`
+          );
+        }
+      }
     }
 
-    for (const block of templateBlocks) {
-      const formAnswer = formAnswers.find(
-        (answer) => answer.questionId === block.id
+    // Check all form answers correspond to a template block
+    for (const answer of formAnswers) {
+      const templateBlock = templateBlocks.find(
+        (block) => block.id === answer.questionId
       );
-      if (!formAnswer) {
-        throw new AppError(
-          400,
-          "The form answer does not match the template block"
-        );
+      if (!templateBlock) {
+        throw new AppError(400, "The answer does not match the template block");
       }
     }
   }
