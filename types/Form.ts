@@ -4,7 +4,7 @@ const FormAnswersSchema = z.object({
   questionId: z.string(),
   question: z.string(),
   questionType: z.enum(["short", "paragraph", "multipleChoice"]),
-  answer: z.string(),
+  answer: z.union([z.string(), z.array(z.string())]),
 });
 
 const FormSchema = z.object({
