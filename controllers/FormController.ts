@@ -238,4 +238,64 @@ export class FormController {
       }
     }
   }
+
+  // Update a specific form
+  async updateForm(req: Request, res: Response) {
+    try {
+      const { userId, role } = this.validateUser(req);
+      const formId = req.params.formId;
+
+      // Fetch the form and the template
+      const form = await this.formHandler.getForm(formId);
+      const template = await this.templateHandler.getTemplate(form.templateId);
+
+      // Check if the user is the owner of the form or the Admin
+      if (form.userId !== userId && role !== "admin") {
+        throw new AppError(
+          401,
+          "The user is not authorized to update this form"
+        );
+      }
+
+      // Extract the partial form data from the request body
+      const partialForm = req.body;
+
+      // Merge the form with the partial form.
+      const newForm: Form = {
+        ...form,
+        ...partialForm,
+        templateId: form.templateId,
+      };
+
+      // Validate the answers
+      this.validateAnswers(partialForm.answers);
+
+      // Validate the full form.
+      FormSchema.parse(newForm);
+
+      // Match the template blocks with the form answers
+      const blocks = JSON.parse(template.blocks as string) as TemplateBlock[];
+      this.matchTemplateBlocks(blocks, partialForm.answers);
+
+      // Update the form
+      const updatedForm = await this.formHandler.updateForm(newForm);
+
+      // Return the updated form
+      res.status(200).json(updatedForm);
+    } catch (error: AppError | ZodError | any) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          message: error.message,
+        });
+      } else if (error instanceof ZodError) {
+        res.status(400).json({
+          message: fromError(error).toString(),
+        });
+      } else {
+        res.status(500).json({
+          message: "An unexpected error occurred",
+        });
+      }
+    }
+  }
 }

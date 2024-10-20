@@ -77,4 +77,18 @@ export class FormHandler {
 
     return deletedForm;
   }
+
+  // Update a specific form
+  async updateForm(formData: Form) {
+    const updatedForm = await this.prisma.form.update({
+      where: { id: formData.id },
+      data: formData,
+    });
+
+    if (!updatedForm) {
+      throw new AppError(404, "Form not found");
+    }
+
+    return updatedForm;
+  }
 }
