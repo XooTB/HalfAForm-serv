@@ -43,6 +43,16 @@ export class FormHandler {
       where: {
         templateId,
       },
+      include: {
+        user: {
+          select: {
+            name: true,
+          },
+        },
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
     });
 
     if (!forms) {

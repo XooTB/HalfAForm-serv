@@ -45,10 +45,10 @@ export class FormController {
   }
 
   // Check if the template is published
-  private async checkTemplate(templateId: string) {
+  private async checkTemplate(templateId: string, published: boolean = true) {
     const template = await this.templateHandler.getTemplate(templateId);
 
-    if (template.status !== "published") {
+    if (template.status !== "published" && published) {
       throw new AppError(400, "The template is not published");
     }
     return template;
@@ -145,7 +145,7 @@ export class FormController {
       const templateId = req.params.templateId;
 
       // Check if the template exists and is published
-      const template = await this.checkTemplate(templateId);
+      const template = await this.checkTemplate(templateId, false);
 
       // Check if the user is the owner of the template or the Admin
       if (template.authorId !== userId && role !== "admin") {
@@ -158,8 +158,13 @@ export class FormController {
       // Fetch all the forms
       const forms = await this.formHandler.getAllForms(templateId);
 
+      const parsedForms = forms.map((form) => ({
+        ...form,
+        answers: JSON.parse(form.answers as string),
+      }));
+
       // Return the forms
-      res.status(200).json(forms);
+      res.status(200).json(parsedForms);
     } catch (error: AppError | ZodError | any) {
       if (error instanceof AppError) {
         res.status(error.statusCode).json({
