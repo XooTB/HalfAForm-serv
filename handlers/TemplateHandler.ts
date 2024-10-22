@@ -91,4 +91,27 @@ export default class TemplateHandler {
     const templates = await this.prisma.template.findMany();
     return templates;
   }
+
+  async getPublicTemplates() {
+    const templates = await this.prisma.template.findMany({
+      where: { status: "published" },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        image: true,
+        status: true,
+        updatedAt: true,
+        author: {
+          select: { name: true },
+        },
+      },
+    });
+
+    if (!templates) {
+      throw new AppError(404, "No public templates found");
+    }
+
+    return templates;
+  }
 }

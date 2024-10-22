@@ -205,4 +205,18 @@ export default class TemplateController {
       }
     }
   }
+
+  async getPublicTemplates(req: Request, res: Response): Promise<void> {
+    try {
+      const templates = await this.templateHandler.getPublicTemplates();
+
+      res.json(templates);
+    } catch (error: any | ZodError) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ error: fromError(error).toString() });
+      } else {
+        res.status(500).json({ error: error.message });
+      }
+    }
+  }
 }

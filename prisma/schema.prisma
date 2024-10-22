@@ -11,6 +11,7 @@ model User {
   role     String   @default("regular")
   status   String   @default("active")
   forms    Form[]
+  templates Template[]
 }
 
 model Template {
@@ -21,10 +22,13 @@ model Template {
   description String
   blocks      Json
   authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   version     Int      @default(1)
   forms       Form[]
+
+
 }
 
 model Form {
