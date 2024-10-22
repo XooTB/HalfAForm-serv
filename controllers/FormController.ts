@@ -307,4 +307,23 @@ export class FormController {
       }
     }
   }
+
+  // Get all the forms for a specific user
+  async getFormsByUser(req: Request, res: Response) {
+    const { userId } = this.validateUser(req);
+
+    try {
+      // Get all the forms for the user
+      const forms = await this.formHandler.getFormsByUser(userId);
+
+      // Return the forms
+      res.status(200).json(forms);
+    } catch (error: AppError | ZodError | any) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          message: error.message,
+        });
+      }
+    }
+  }
 }

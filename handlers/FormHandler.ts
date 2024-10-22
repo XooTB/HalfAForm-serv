@@ -91,4 +91,29 @@ export class FormHandler {
 
     return updatedForm;
   }
+
+  // Get all the forms for a specific user
+  async getFormsByUser(userId: string) {
+    const forms = await this.prisma.form.findMany({
+      where: { userId },
+      include: {
+        template: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+          },
+        },
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+    });
+
+    if (!forms || forms.length === 0) {
+      throw new AppError(404, "No forms found for this user");
+    }
+
+    return forms;
+  }
 }

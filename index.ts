@@ -69,7 +69,10 @@ app.get(
   templateController.getTemplate.bind(templateController)
 );
 
-app.get("/templates", templateController.getTemplates.bind(templateController));
+app.get(
+  "/templates",
+  templateController.getPublicTemplates.bind(templateController)
+);
 
 app.delete(
   "/templates/:id",
@@ -103,6 +106,12 @@ app.post(
   "/forms/new",
   authController.authMiddleware.bind(authController),
   formController.createForm.bind(formController)
+);
+
+app.get(
+  "/forms/user",
+  authController.authMiddleware.bind(authController),
+  formController.getFormsByUser.bind(formController)
 );
 
 app.get(
