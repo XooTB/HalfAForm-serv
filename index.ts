@@ -115,7 +115,7 @@ app.get(
 );
 
 app.get(
-  "/forms/:templateId",
+  "/forms/template/:templateId",
   authController.authMiddleware.bind(authController),
   formController.getAllForms.bind(formController)
 );
