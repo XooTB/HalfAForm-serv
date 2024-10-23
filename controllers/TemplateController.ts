@@ -245,4 +245,46 @@ export default class TemplateController {
       }
     }
   }
+
+  async updateTemplateAdmins(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const { admins: newAdmins } = req.body;
+      const { userId, role } = this.validateUser(req);
+
+      // Fetch the existing template
+      const existingTemplate = await this.templateHandler.getTemplate(id);
+
+      // Validate permissions
+      this.validatePermissions(existingTemplate, userId, role);
+
+      // Get existing admin IDs
+      const existingAdmins = existingTemplate.admins.map(
+        (admin: any) => admin.id
+      );
+
+      // Determine admins to add and remove
+      const adminsToAdd = newAdmins.filter(
+        (adminId: string) => !existingAdmins.includes(adminId)
+      );
+      const adminsToRemove = existingAdmins.filter(
+        (adminId: string) => !newAdmins.includes(adminId)
+      );
+
+      // Update the template admins
+      const updatedTemplate = await this.templateHandler.updateTemplateAdmins(
+        id,
+        adminsToAdd,
+        adminsToRemove
+      );
+
+      res.json(updatedTemplate);
+    } catch (error: any | ZodError) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ error: fromError(error).toString() });
+      } else {
+        res.status(error.statusCode || 500).json({ error: error.message });
+      }
+    }
+  }
 }

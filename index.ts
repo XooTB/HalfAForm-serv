@@ -80,6 +80,12 @@ app.delete(
   templateController.deleteTemplate.bind(templateController)
 );
 
+app.put(
+  "/templates/admins/:id",
+  authController.authMiddleware.bind(authController),
+  templateController.updateTemplateAdmins.bind(templateController)
+);
+
 // User Management Routes
 app.get("/users/:id", userController.getUser.bind(userController));
 

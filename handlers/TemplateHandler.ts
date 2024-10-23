@@ -155,4 +155,30 @@ export default class TemplateHandler {
 
     return templates;
   }
+
+  async updateTemplateAdmins(
+    id: string,
+    adminsToAdd: string[],
+    adminsToRemove: string[]
+  ) {
+    const template = await this.prisma.template.update({
+      where: { id },
+      data: {
+        admins: {
+          connect: adminsToAdd.map((adminId) => ({ id: adminId })),
+          disconnect: adminsToRemove.map((adminId) => ({ id: adminId })),
+        },
+      },
+      include: {
+        admins: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    return template;
+  }
 }
