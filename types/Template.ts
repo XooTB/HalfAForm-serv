@@ -17,6 +17,7 @@ const TemplateSchema = z.object({
   description: z.string(),
   blocks: z.array(TemplateBlockSchema),
   authorId: z.string(),
+  admins: z.array(z.string()),
   version: z.number(),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -30,6 +31,7 @@ interface Template {
   description: string;
   blocks: TemplateBlock[];
   authorId: string;
+  admins: string[];
   version: number;
   createdAt: Date;
   updatedAt: Date;

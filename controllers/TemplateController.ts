@@ -58,6 +58,7 @@ export default class TemplateController {
         description,
         blocks as TemplateBlock[],
         userId,
+        [userId],
         templateStatus,
         image
       );

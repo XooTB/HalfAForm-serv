@@ -4,14 +4,15 @@ datasource db {
 }
 
 model User {
-  id       String   @id @unique @default(uuid())
-  email    String   @unique
-  name     String?
-  password String
-  role     String   @default("regular")
-  status   String   @default("active")
-  forms    Form[]
-  templates Template[]
+  id           String     @id @unique @default(uuid())
+  email        String     @unique
+  name         String?
+  password     String
+  role         String     @default("regular")
+  status       String     @default("active")
+  forms        Form[]
+  templates    Template[] @relation("TemplateAdmins")
+  authored     Template[] @relation("TemplateAuthor")
 }
 
 model Template {
@@ -22,13 +23,12 @@ model Template {
   description String
   blocks      Json
   authorId    String
-  author      User     @relation(fields: [authorId], references: [id])
+  author      User     @relation("TemplateAuthor", fields: [authorId], references: [id])
+  admins      User[]   @relation("TemplateAdmins")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   version     Int      @default(1)
   forms       Form[]
-
-
 }
 
 model Form {

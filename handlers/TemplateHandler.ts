@@ -15,6 +15,7 @@ export default class TemplateHandler {
     description: string,
     blocks: TemplateBlock[],
     userId: string,
+    admins: string[],
     status: "draft" | "published" | "restricted" = "draft",
     image?: string
   ) {
@@ -30,10 +31,18 @@ export default class TemplateHandler {
       image,
       createdAt: new Date(),
       updatedAt: new Date(),
+      admins,
     };
 
     // Create the record in the database
-    const template = await this.prisma.template.create({ data });
+    const template = await this.prisma.template.create({
+      data: {
+        ...data,
+        admins: {
+          connect: data.admins.map((adminId) => ({ id: adminId })),
+        },
+      },
+    });
 
     return template;
   }
@@ -82,6 +91,13 @@ export default class TemplateHandler {
         image: true,
         status: true,
         updatedAt: true,
+        admins: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
         _count: {
           select: { forms: true },
         },
