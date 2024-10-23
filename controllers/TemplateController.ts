@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import TemplateHandler from "../handlers/TemplateHandler";
 import { PrismaClient } from "@prisma/client";
 import type { Template, TemplateBlock } from "../types/Template";
-import { TemplateBlockSchema, TemplateSchema } from "../types/Template";
+import { TemplateBlockSchema, TemplateUpdateSchema } from "../types/Template";
 import { ZodError } from "zod";
 import { fromError } from "zod-validation-error";
 import { AppError } from "../utils/AppError";
@@ -12,6 +12,27 @@ export default class TemplateController {
 
   constructor(prisma: PrismaClient) {
     this.templateHandler = new TemplateHandler(prisma);
+  }
+
+  private validateUser(req: Request) {
+    const { id: userId, role, status } = (req as any).user;
+    if (
+      !userId ||
+      (role !== "admin" && role !== "regular") ||
+      status !== "active"
+    ) {
+      throw new AppError(401, "The user is not authorized to create a form");
+    }
+
+    return { userId, role, status };
+  }
+
+  private validatePermissions(admins: string[], userId: string) {
+    if (admins.includes(userId)) {
+      return true;
+    }
+
+    return false;
   }
 
   async createTemplate(req: Request, res: Response): Promise<void> {
@@ -79,7 +100,7 @@ export default class TemplateController {
     try {
       // Extract template ID from request parameters
       const { id } = req.params;
-      const { id: userId, role, status } = (req as any).user;
+      const { userId, role } = this.validateUser(req);
 
       // Extract template data from request body
       const partialTemplate = req.body;
@@ -87,14 +108,14 @@ export default class TemplateController {
       // Fetch the existing template record
       const existingTemplate = await this.templateHandler.getTemplate(id);
 
-      // Ensure the user is either the author of the template or an admin
-      if (existingTemplate.authorId !== userId && role !== "admin") {
+      // Ensure the user is either the author of the template, admin, or one of the admins
+      const admins = existingTemplate.admins.map((admin) => admin.id);
+      if (
+        existingTemplate.authorId !== userId &&
+        !this.validatePermissions(admins, userId) &&
+        role !== "admin"
+      ) {
         throw new AppError(401, "User is not authorized for this action");
-      }
-
-      // Make sure the user is active
-      if (status !== "active") {
-        throw new AppError(401, "User is not active");
       }
 
       // Merge existing template with partial update
@@ -103,17 +124,20 @@ export default class TemplateController {
         ...partialTemplate,
         blocks: partialTemplate.blocks
           ? partialTemplate.blocks
-          : existingTemplate.blocks,
+          : JSON.parse(existingTemplate.blocks as string),
+        admins: partialTemplate.admins ? partialTemplate.admins : admins,
       };
 
       // Validate the merged template
-      TemplateSchema.parse(updatedTemplate);
+      TemplateUpdateSchema.parse(updatedTemplate);
 
       // Update the template
       const data = await this.templateHandler.updateTemplate(
         id,
         updatedTemplate
       );
+
+      data.blocks = JSON.parse(data.blocks as string);
 
       res.json(data);
     } catch (error: any | ZodError) {

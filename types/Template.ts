@@ -23,6 +23,8 @@ const TemplateSchema = z.object({
   updatedAt: z.date(),
 });
 
+const TemplateUpdateSchema = TemplateSchema.partial();
+
 interface Template {
   id: string;
   name: string;
@@ -47,5 +49,6 @@ interface TemplateBlock {
   options?: string[];
 }
 
+export type UpdateTemplate = z.infer<typeof TemplateUpdateSchema>;
 export type { Template, TemplateBlock };
-export { TemplateSchema, TemplateBlockSchema };
+export { TemplateSchema, TemplateBlockSchema, TemplateUpdateSchema };
