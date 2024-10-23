@@ -255,15 +255,15 @@ export default class TemplateController {
       // Fetch the existing template
       const existingTemplate = await this.templateHandler.getTemplate(id);
 
-      // Validate permissions
+      // Validate user permissions
       this.validatePermissions(existingTemplate, userId, role);
 
-      // Get existing admin IDs
+      // Get existing admins
       const existingAdmins = existingTemplate.admins.map(
         (admin: any) => admin.id
       );
 
-      // Determine admins to add and remove
+      // Determine which admins to add and which to remove
       const adminsToAdd = newAdmins.filter(
         (adminId: string) => !existingAdmins.includes(adminId)
       );
