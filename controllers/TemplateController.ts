@@ -27,12 +27,19 @@ export default class TemplateController {
     return { userId, role, status };
   }
 
-  private validatePermissions(admins: string[], userId: string) {
-    if (admins.includes(userId)) {
-      return true;
+  private validatePermissions(
+    existingTemplate: any,
+    userId: string,
+    role: string
+  ) {
+    const admins = existingTemplate.admins.map((admin: any) => admin.id);
+    if (
+      existingTemplate.authorId !== userId &&
+      !admins.includes(userId) &&
+      role !== "admin"
+    ) {
+      throw new AppError(401, "User is not authorized for this action");
     }
-
-    return false;
   }
 
   async createTemplate(req: Request, res: Response): Promise<void> {
@@ -109,14 +116,8 @@ export default class TemplateController {
       const existingTemplate = await this.templateHandler.getTemplate(id);
 
       // Ensure the user is either the author of the template, admin, or one of the admins
-      const admins = existingTemplate.admins.map((admin) => admin.id);
-      if (
-        existingTemplate.authorId !== userId &&
-        !this.validatePermissions(admins, userId) &&
-        role !== "admin"
-      ) {
-        throw new AppError(401, "User is not authorized for this action");
-      }
+      this.validatePermissions(existingTemplate, userId, role);
+      const admins = existingTemplate.admins.map((admin: any) => admin.id);
 
       // Merge existing template with partial update
       const updatedTemplate: Template = {
@@ -125,7 +126,7 @@ export default class TemplateController {
         blocks: partialTemplate.blocks
           ? partialTemplate.blocks
           : JSON.parse(existingTemplate.blocks as string),
-        admins: partialTemplate.admins ? partialTemplate.admins : admins,
+        admins: existingTemplate.admins.map((admin: any) => admin.id),
       };
 
       // Validate the merged template
