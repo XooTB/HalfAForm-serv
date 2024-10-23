@@ -24,7 +24,7 @@ export default class UserHandler {
 
   async updateUser(
     id: string,
-    data: Partial<{ name: string; email: string; role: string }>
+    data: Partial<{ name: string; email: string; role: string; status: string }>
   ) {
     const user = await this.prisma.user.update({
       where: { id },
