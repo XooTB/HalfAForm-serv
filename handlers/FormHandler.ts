@@ -126,4 +126,29 @@ export class FormHandler {
 
     return forms;
   }
+
+  // Get all the submissions for a specific user
+  async getAllSubmissions(userId: string) {
+    const submissions = await this.prisma.form.findMany({
+      where: { template: { author: { id: userId } } },
+      select: {
+        id: true,
+        answers: true,
+        createdAt: true,
+        template: {
+          select: {
+            name: true,
+            description: true,
+          },
+        },
+        user: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    return submissions;
+  }
 }

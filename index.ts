@@ -144,6 +144,12 @@ app.get(
   formController.getForm.bind(formController)
 );
 
+app.get(
+  "/forms/submissions",
+  authController.authMiddleware.bind(authController),
+  formController.getAllSubmissions.bind(formController)
+);
+
 app.delete(
   "/forms/delete/:formId",
   authController.authMiddleware.bind(authController),

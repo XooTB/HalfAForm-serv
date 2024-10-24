@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { FormHandler } from "../handlers/FormHandler";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, type Template } from "@prisma/client";
 import { AppError } from "../utils/AppError";
 import {
   FormAnswersSchema,
@@ -82,6 +82,19 @@ export class FormController {
       if (!templateBlock) {
         throw new AppError(400, "The answer does not match the template block");
       }
+    }
+  }
+
+  private validatePermissions(
+    admins: string[],
+    templateAuthor: string,
+    userId: string
+  ) {
+    if (!admins.includes(userId) && templateAuthor !== userId) {
+      throw new AppError(
+        401,
+        "The user is not authorized to interact with this form"
+      );
     }
   }
 
@@ -323,6 +336,27 @@ export class FormController {
 
       // Return the forms
       res.status(200).json(forms);
+    } catch (error: AppError | ZodError | any) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({
+          message: error.message,
+        });
+      }
+    }
+  }
+
+  async getAllSubmissions(req: Request, res: Response) {
+    try {
+      const { userId } = this.validateUser(req);
+
+      const submissions = await this.formHandler.getAllSubmissions(userId);
+
+      const parsedSubmissions = submissions.map((submission) => ({
+        ...submission,
+        answers: JSON.parse(submission.answers as string),
+      }));
+
+      res.status(200).json(parsedSubmissions);
     } catch (error: AppError | ZodError | any) {
       if (error instanceof AppError) {
         res.status(error.statusCode).json({
