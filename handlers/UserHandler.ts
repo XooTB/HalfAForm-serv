@@ -51,4 +51,26 @@ export default class UserHandler {
 
     return users.map(({ password: _, ...user }) => user);
   }
+
+  async findUsers(query: { name?: string; email?: string }) {
+    const users = await this.prisma.user.findMany({
+      where: {
+        OR: [
+          {
+            name: query.name
+              ? { contains: query.name, mode: "insensitive" }
+              : undefined,
+          },
+          { email: query.email },
+        ],
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+      },
+    });
+
+    return users;
+  }
 }

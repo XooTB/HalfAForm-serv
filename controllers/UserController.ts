@@ -92,4 +92,30 @@ export default class UserController {
       }
     }
   }
+
+  async findUsers(req: Request, res: Response) {
+    try {
+      const { name, email } = req.query;
+
+      if (!name && !email) {
+        throw new AppError(
+          400,
+          "At least one search parameter (name or email) is required"
+        );
+      }
+
+      const users = await this.userHandler.findUsers({
+        name: name as string,
+        email: email as string,
+      });
+
+      res.json(users);
+    } catch (error: any | AppError) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: (error as Error).message });
+      }
+    }
+  }
 }
