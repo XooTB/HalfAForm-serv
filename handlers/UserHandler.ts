@@ -73,4 +73,29 @@ export default class UserHandler {
 
     return users;
   }
+
+  async getUserStats(authorId: string) {
+    const totalTemplatesCount = await this.prisma.template.count({
+      where: { authorId },
+    });
+
+    const publicTemplatesCount = await this.prisma.template.count({
+      where: { authorId, status: "published" },
+    });
+
+    const submissionCount = await this.prisma.form.count({
+      where: { template: { authorId } },
+    });
+
+    const ownFormsCount = await this.prisma.form.count({
+      where: { userId: authorId },
+    });
+
+    return {
+      totalTemplatesCount,
+      publicTemplatesCount,
+      submissionCount,
+      ownFormsCount,
+    };
+  }
 }

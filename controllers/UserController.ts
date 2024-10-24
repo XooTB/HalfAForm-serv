@@ -118,4 +118,34 @@ export default class UserController {
       }
     }
   }
+
+  async getUserStats(req: Request, res: Response) {
+    try {
+      const { id: userId } = (req as any).user;
+
+      // Fetch the user stats including total templates, total public templates,
+      // total submission count on those templates, and his own forms
+      const stats = await this.userHandler.getUserStats(userId);
+
+      const {
+        totalTemplatesCount,
+        publicTemplatesCount,
+        submissionCount,
+        ownFormsCount,
+      } = stats;
+
+      res.json({
+        totalTemplates: totalTemplatesCount,
+        totalPublicTemplates: publicTemplatesCount,
+        totalSubmissionCount: submissionCount,
+        ownFormsCount: ownFormsCount,
+      });
+    } catch (error: any | AppError) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: error.message });
+      }
+    }
+  }
 }

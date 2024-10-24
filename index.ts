@@ -93,6 +93,12 @@ app.get(
   userController.findUsers.bind(userController)
 );
 
+app.get(
+  "/users/stats",
+  authController.authMiddleware.bind(authController),
+  userController.getUserStats.bind(userController)
+);
+
 app.get("/users/:id", userController.getUser.bind(userController));
 
 app.get(
