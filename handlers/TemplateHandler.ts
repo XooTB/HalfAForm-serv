@@ -90,11 +90,8 @@ export default class TemplateHandler {
 
   async getTemplatesByUser(userId: string) {
     const templates = await this.prisma.template.findMany({
-      where: { 
-        OR: [
-          { authorId: userId },
-          { admins: { some: { id: userId } } },
-        ],
+      where: {
+        OR: [{ authorId: userId }, { admins: { some: { id: userId } } }],
       },
       select: {
         id: true,
