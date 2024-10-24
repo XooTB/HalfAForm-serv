@@ -154,20 +154,13 @@ export default class TemplateController {
     try {
       // Extract template ID from request parameters
       const { id } = req.params;
-      const { id: userId, role, status } = (req as any).user;
+      const { userId, role, status } = this.validateUser(req);
 
       // Fetch the existing template record
-      const record = await this.templateHandler.getTemplate(id);
+      const existingTemplate = await this.templateHandler.getTemplate(id);
 
-      // Ensure the user is either the author of the template or an admin
-      if (record.authorId !== userId && role !== "admin") {
-        throw new AppError(401, "User is not authorized for this action");
-      }
-
-      // Make sure the user is active
-      if (status !== "active") {
-        throw new AppError(401, "User is not active");
-      }
+      // Ensure the user is either the author of the template, one of the admins, or an admin
+      this.validatePermissions(existingTemplate, userId, role);
 
       // Delete the template
       await this.templateHandler.deleteTemplate(id);
