@@ -87,6 +87,12 @@ app.put(
 );
 
 // User Management Routes
+app.get(
+  "/users/search",
+  authController.authMiddleware.bind(authController),
+  userController.findUsers.bind(userController)
+);
+
 app.get("/users/:id", userController.getUser.bind(userController));
 
 app.get(
