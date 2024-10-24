@@ -90,7 +90,12 @@ export default class TemplateHandler {
 
   async getTemplatesByUser(userId: string) {
     const templates = await this.prisma.template.findMany({
-      where: { authorId: userId },
+      where: { 
+        OR: [
+          { authorId: userId },
+          { admins: { some: { id: userId } } },
+        ],
+      },
       select: {
         id: true,
         name: true,
@@ -111,12 +116,6 @@ export default class TemplateHandler {
       },
     });
 
-    // Transform the result to include the form count
-    const templatesWithFormCount = templates.map((template) => ({
-      ...template,
-      formCount: template._count.forms,
-      _count: undefined,
-    }));
     return templates;
   }
 
