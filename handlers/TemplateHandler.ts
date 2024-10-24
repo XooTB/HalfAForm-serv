@@ -50,7 +50,7 @@ export default class TemplateHandler {
   async getTemplate(id: string) {
     const template = await this.prisma.template.findUnique({
       where: { id },
-      include: { admins: { select: { id: true } } },
+      include: { admins: { select: { id: true, name: true, email: true } } },
     });
 
     if (!template) {
@@ -76,7 +76,9 @@ export default class TemplateHandler {
           connect: data.admins.map((adminId) => ({ id: adminId })),
         },
       },
-      include: { admins: { select: { id: true } } },
+      include: {
+        admins: { select: { id: true, name: true, email: true } },
+      },
     });
 
     return template;
