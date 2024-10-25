@@ -147,6 +147,9 @@ export class FormHandler {
           },
         },
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     return submissions;
