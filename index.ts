@@ -24,8 +24,16 @@ if (!JWT_SECRET) {
 }
 
 // Middleware
-app.use(cors());
 app.use(express.json());
+
+// CORS Configuration
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "*";
+app.use(
+  cors({
+    origin: ALLOWED_ORIGIN,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  })
+);
 
 // Initialize AuthHandler and AuthController
 const authHandler = new AuthHandler(prisma, JWT_SECRET);
