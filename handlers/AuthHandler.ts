@@ -109,6 +109,55 @@ export default class AuthHandler {
     }
   }
 
+  async githubAuth(name: string, email: string, avatar: string) {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      const token = this.generateToken(
+        existingUser.id,
+        existingUser.role,
+        existingUser.status
+      );
+
+      return {
+        user: {
+          id: existingUser.id,
+          email: existingUser.email,
+          name: existingUser.name,
+          role: existingUser.role,
+          status: existingUser.status,
+        },
+        token,
+      };
+    }
+
+    // If the user does not exist, create a new user
+    const user = await this.prisma.user.create({
+      data: {
+        id: uuid(),
+        name,
+        email,
+        avatar,
+        password: "",
+        role: "regular",
+        status: "active",
+      },
+    });
+
+    // Generate a token for the new user
+    const token = this.generateToken(user.id, user.role, user.status);
+    // Return the user and the token
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+      },
+      token,
+    };
+  }
+
   private generateToken(
     userId: string,
     userRole: string,

@@ -56,4 +56,15 @@ export default class AuthController {
       res.status(error.statusCode).json({ error: error.message });
     }
   }
+
+  async githubAuth(req: Request, res: Response) {
+    try {
+      const { name, email, image } = req.body;
+      const result = await this.authHandler.githubAuth(name, email, image);
+
+      res.json(result);
+    } catch (error: any) {
+      res.status(401).json({ error: error.message });
+    }
+  }
 }

@@ -52,6 +52,7 @@ app.get("/", (req, res) => {
 // Auth Routes
 app.post("/register", authController.register.bind(authController));
 app.post("/login", authController.login.bind(authController));
+app.post("/auth/github", authController.githubAuth.bind(authController));
 
 // Template Routes
 app.post(
