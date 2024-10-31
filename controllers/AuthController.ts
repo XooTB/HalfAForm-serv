@@ -67,4 +67,16 @@ export default class AuthController {
       res.status(401).json({ error: error.message });
     }
   }
+
+  async googleAuth(req: Request, res: Response) {
+    try {
+      const { name, email, image } = req.body;
+
+      const result = await this.authHandler.googleAuth(name, email, image);
+
+      res.json(result);
+    } catch (error: any) {
+      res.status(401).json({ error: error.message });
+    }
+  }
 }

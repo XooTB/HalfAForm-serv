@@ -153,6 +153,59 @@ export default class AuthHandler {
       user: {
         id: user.id,
         email: user.email,
+        name: user.name,
+        role: user.role,
+        status: user.status,
+      },
+      token,
+    };
+  }
+
+  async googleAuth(name: string, email: string, avatar: string) {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      const token = this.generateToken(
+        existingUser.id,
+        existingUser.role,
+        existingUser.status
+      );
+
+      return {
+        user: {
+          id: existingUser.id,
+          email: existingUser.email,
+          name: existingUser.name,
+          role: existingUser.role,
+          status: existingUser.status,
+        },
+        token,
+      };
+    }
+
+    // If the user does not exist, create a new user
+    const user = await this.prisma.user.create({
+      data: {
+        id: uuid(),
+        name,
+        email,
+        avatar,
+        password: "",
+        role: "regular",
+        status: "active",
+      },
+    });
+
+    const token = this.generateToken(user.id, user.role, user.status);
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        status: user.status,
       },
       token,
     };

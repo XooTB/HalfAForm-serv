@@ -53,6 +53,7 @@ app.get("/", (req, res) => {
 app.post("/register", authController.register.bind(authController));
 app.post("/login", authController.login.bind(authController));
 app.post("/auth/github", authController.githubAuth.bind(authController));
+app.post("/auth/google", authController.googleAuth.bind(authController));
 
 // Template Routes
 app.post(
