@@ -52,6 +52,7 @@ model SalesforceAccount {
   user      User     @relation(fields: [userId], references: [id])
   accountId String   @unique
   name      String
+  contactId String?
   description String?
   site        String?
   phone       String?
