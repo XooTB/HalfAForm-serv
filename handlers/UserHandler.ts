@@ -11,6 +11,19 @@ export default class UserHandler {
   async getUser(id: string) {
     const user = await this.prisma.user.findUnique({
       where: { id },
+      include: {
+        authored: {
+          where: {
+            status: "published",
+          },
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            image: true,
+          },
+        },
+      },
     });
 
     if (!user) {
