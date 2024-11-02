@@ -111,4 +111,16 @@ export default class UserHandler {
       ownFormsCount,
     };
   }
+
+  async getSalesforceAccount(userId: string) {
+    const account = await this.prisma.salesforceAccount.findUnique({
+      where: { userId },
+    });
+
+    if (!account) {
+      throw new AppError(404, "User does not have a Salesforce account");
+    }
+
+    return account;
+  }
 }
