@@ -9,7 +9,7 @@ import UserHandler from "./handlers/UserHandler";
 import UserController from "./controllers/UserController";
 import { FormHandler } from "./handlers/FormHandler";
 import { FormController } from "./controllers/FormController";
-import TemplateHandler from "./handlers/TemplateHandler";
+import salesforceRoutes from "./routes/SalesForceRoutes";
 
 // Initialize the Express Application, Server and Prisma Client
 const app = express();
@@ -171,6 +171,9 @@ app.put(
   authController.authMiddleware.bind(authController),
   formController.updateForm.bind(formController)
 );
+
+// Salesforce Routes
+app.use("/salesforce", salesforceRoutes);
 
 // Start the Server and listen to incoming requests
 server.listen(PORT, () => {
