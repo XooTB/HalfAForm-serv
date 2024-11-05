@@ -47,6 +47,8 @@ export default class SalesforceController {
 
   async createSalesforceAccount(req: Request, res: Response) {
     try {
+      const { ContactInfo, ...accountData } = req.body;
+
       const { userId } = this.validateUser(req);
 
       // Check if the user has a Salesforce account already
@@ -65,7 +67,6 @@ export default class SalesforceController {
         },
       };
       // Extract contact info from request body
-      const { ContactInfo, ...accountData } = req.body;
 
       // Create the Salesforce account first
       const account = accountSchema.parse(accountData);
@@ -119,13 +120,20 @@ export default class SalesforceController {
         accountData
       );
 
+      // Update the Salesforce contact
+      const updatedContact = await this.salesforceHandler.updateContact(
+        account.contactId as string,
+        ContactInfo
+      );
+
       // Update the database with the new account information
       const updatedAccount =
         await this.salesforceHandler.updateSalesforceAccount(userId, {
           ...accountData,
+          ...ContactInfo,
         });
 
-      res.json({ updatedAccount });
+      res.json(updatedAccount);
     } catch (err) {
       res.status(500).json({ error: (err as Error).message });
     }

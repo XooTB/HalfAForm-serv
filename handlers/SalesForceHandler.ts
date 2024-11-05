@@ -110,9 +110,17 @@ export default class SalesforceHandler {
     return updatedAccount;
   }
 
+  async updateContact(contactId: string, data: any): Promise<any> {
+    const updatedContact = await this.conn
+      .sobject("Contact")
+      .update([{ Id: contactId, ...data }]);
+
+    return updatedContact;
+  }
+
   async updateSalesforceAccount(
     userId: string,
-    data: Partial<Account>
+    data: Partial<Account & Contact>
   ): Promise<any> {
     const updatedAccount = this.prisma.salesforceAccount.update({
       where: { userId },
@@ -121,8 +129,13 @@ export default class SalesforceHandler {
         description: data.Description,
         site: data.Site,
         phone: data.Phone,
-        website: data.Website,
+        // @ts-ignore
+        website: data.website,
         type: data.Type,
+        FirstName: data.FirstName,
+        LastName: data.LastName,
+        Email: data.Email,
+        MobilePhone: data.MobilePhone,
       },
     });
 

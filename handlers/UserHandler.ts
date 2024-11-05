@@ -117,10 +117,6 @@ export default class UserHandler {
       where: { userId },
     });
 
-    if (!account) {
-      throw new AppError(404, "User does not have a Salesforce account");
-    }
-
     return account;
   }
 }
